@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- polyfill for importmaps, in case ur browser don't support it -->
+		<script defer src="https://cdn.jsdelivr.net/npm/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<title>...</title>
+		<link rel="stylesheet" type="text/css" href="./style.css">
+	</head>
+	<body id="container">
+		<script type="importmap">
+		  {
+			"imports": {
+			  "three": "https://cdn.jsdelivr.net/npm/three@0.141.0/build/three.module.js",
+			  "WebGL": "https://cdn.jsdelivr.net/npm/three@0.141.0/examples/jsm/capabilities/WebGL.js",
+			  "controls": "https://cdn.jsdelivr.net/npm/three@0.141.0/examples/jsm/controls/OrbitControls.js"
+			}
+		  }
+		</script>
+		<script defer type="module" src="./testing.js"></script>
+	</body>
+</html>
