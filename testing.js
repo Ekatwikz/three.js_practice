@@ -11,7 +11,7 @@ let camera, scene, renderer;
 let clock, delta, interval;
 let cube;
 
-function init () {
+function init (resourcePath) {
 	// init scene
 	scene = new THREE.Scene();
 
@@ -50,14 +50,15 @@ function init () {
 	scene.add(new THREE.AmbientLight(0x101010));
 
 	// set skybox
+	let imagePath = resourcePath + '/3Dstuff/FreeCopperCubeSkyboxes/craterlake/craterlake_';
 	const loader = new THREE.CubeTextureLoader();
 	const texture = loader.load([
-		'./3Dstuff/FreeCopperCubeSkyboxes/craterlake/craterlake_ft.jpg', // +x
-		'./3Dstuff/FreeCopperCubeSkyboxes/craterlake/craterlake_bk.jpg', // -x
-		'./3Dstuff/FreeCopperCubeSkyboxes/craterlake/craterlake_up.jpg', // +y
-		'./3Dstuff/FreeCopperCubeSkyboxes/craterlake/craterlake_dn.jpg', // -y
-		'./3Dstuff/FreeCopperCubeSkyboxes/craterlake/craterlake_rt.jpg', // +z
-		'./3Dstuff/FreeCopperCubeSkyboxes/craterlake/craterlake_lf.jpg', // -z
+		imagePath + 'ft.jpg', // +x
+		imagePath + 'bk.jpg', // -x
+		imagePath + 'up.jpg', // +y
+		imagePath + 'dn.jpg', // -y
+		imagePath + 'rt.jpg', // +z
+		imagePath + 'lf.jpg', // -z
 	]);
 	scene.background = texture;
 
@@ -118,7 +119,7 @@ function onWindowResize() {
 
 // only start doing stuff if we have WebGL to start with
 if ( WebGL.isWebGLAvailable() ) {
-	init();
+	init('https://spages.mini.pw.edu.pl/~katwikirizee');
 	animate();
 } else {
 	container.appendChild(WebGL.getWebGLErrorMessage());

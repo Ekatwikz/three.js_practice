@@ -7,12 +7,11 @@ main () {
 	checkdir $1
 
 	INDIR=$(cleanupArg $1)
-	NETPATH=$(cleanupArg $2)
-	OUTDIR=$NETPATH/${INDIR##*/}
+	OUTDIR=$(cleanupArg $2)
 
 	printf $INDIR" -> "$OUTDIR"\n---\n\n"
 	rsync -rltg -vh $INDIR $OUTDIR
-	printf "\n---\n"$INDIR" -> "$OUTDIR
+	printf "\n---\n"$INDIR" -> "$OUTDIR"\n"
 }
 
 checkdir() {
