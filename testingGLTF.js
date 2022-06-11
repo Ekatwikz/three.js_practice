@@ -1,13 +1,52 @@
 import * as THREE from 'three';
 import WebGL from 'WebGL';
 import { OrbitControls } from 'controls';
+import { GLTFLoader } from 'GLTFLoader';
 
 let container = document.getElementById( 'container' );
 
 let camera, scene, renderer;
 let clock, delta, interval;
-let cube;
+let rocket;
 
+// specific init stuff goes here
+function initHook(resourcePath) {
+	// hax to avoid issue with manipulating unloaded model
+	// probably dumdum, don't do
+	rocket = new THREE.Object3D(); 
+
+	// load up a GLB model and add it to le scene
+	// rocket1 is ktx2, rocket3 is compressed (?)
+	const GLTFpath = resourcePath + '/3Dstuff/models/rocket1.glb';
+	const loader = new GLTFLoader();
+	loader.load(GLTFpath, (parsedJSON) => {
+		rocket = parsedJSON.scene;
+		rocket.position.y = 5;
+		rocket.traverse(descendantObject => {
+			descendantObject.castShadow = true;
+		});
+		scene.add(rocket);
+	});
+	
+	// add ground plane
+	const plane = new THREE.Mesh(
+		new THREE.PlaneGeometry(100, 100, 10, 10),
+		new THREE.MeshStandardMaterial({
+			color: 0xFFFFFF,
+		}));
+	plane.castShadow = false;
+	plane.receiveShadow = true;
+	plane.rotation.x = -Math.PI / 2;
+	plane.position.set(0, -20, 0);
+	scene.add(plane);
+}
+
+// time dependent (?) stuff goes in here
+function render() {
+	rocket.rotation.y += 0.01;
+}
+
+// generic init stuff goes here
 function init (resourcePath) {
 	// init scene
 	scene = new THREE.Scene();
@@ -22,7 +61,7 @@ function init (resourcePath) {
 		antialias: true,
 	});
 	renderer.shadowMap.enabled = true;
-	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+	renderer.shadowMapType = THREE.PCFSoftShadowMap;
 	renderer.setPixelRatio(window.devicePixelRatio);
 	renderer.setSize( window.innerWidth, window.innerHeight );
 
@@ -35,8 +74,13 @@ function init (resourcePath) {
 	light.target.position.set(0, 0, 0);
 	light.castShadow = true;
 	light.shadow.bias = -0.001;
+
+	light.shadowMapWidth = 2048;
+	light.shadowMapHeight = 2048;
+
 	light.shadow.mapSize.width = 2048;
 	light.shadow.mapSize.height = 2048;
+
 	light.shadow.camera.near = 0.1;
 	light.shadow.camera.far = 500.0;
 	light.shadow.camera.near = 0.5;
@@ -47,19 +91,11 @@ function init (resourcePath) {
 	light.shadow.camera.bottom = -100;
 	scene.add(light);
 
-	// visualize light source
-	const lightSphere = new THREE.Mesh(
-		new THREE.SphereGeometry( 0.3, 20, 10 ),
-		new THREE.MeshBasicMaterial( { color: 0xFFFF00} ),
-	);
-	lightSphere.position.copy(light.position);
-	scene.add( lightSphere );
-
 	// bit of ambient light
-	scene.add(new THREE.AmbientLight(0x507050));
+	scene.add(new THREE.AmbientLight(0x505050));
 
 	// set skybox
-	let imagePath = resourcePath + '/3Dstuff/FreeCopperCubeSkyboxes/craterlake/craterlake_';
+	const imagePath = resourcePath + '/3Dstuff/FreeCopperCubeSkyboxes/craterlake/craterlake_';
 	const loader = new THREE.CubeTextureLoader();
 	const texture = loader.load([
 		imagePath + 'ft.jpg', // +x
@@ -71,27 +107,8 @@ function init (resourcePath) {
 	]);
 	scene.background = texture;
 
-	// create sum shitte mesh and add it to scene
-	cube = new THREE.Mesh(
-		new THREE.BoxGeometry( 1, 1, 1 ),
-		new THREE.MeshStandardMaterial( { color: 0x00ff00,
-			transparent: true, opacity: 0.8} ),
-	);
-	cube.castShadow = true;
-	cube.receiveShadow = true;
-	cube.position.y = 5;
-	scene.add( cube );
-	
-	const plane = new THREE.Mesh(
-		new THREE.PlaneGeometry(100, 100, 10, 10),
-		new THREE.MeshStandardMaterial({
-			color: 0xFFFFFF,
-		}));
-	plane.castShadow = false;
-	plane.receiveShadow = true;
-	plane.rotation.x = -Math.PI / 2;
-	plane.position.set(0, -20, 0);
-	scene.add(plane);
+	// do specific init stuff
+	initHook(resourcePath);
 
 	// clock to limit frame rate,
 	// for consistency and performance
@@ -99,9 +116,13 @@ function init (resourcePath) {
 	delta = 0; // last measure time difference
 	interval = 1 / 60; // time intervals that we wanna render in
 
+	// setup controls
 	const controls = new OrbitControls( camera, renderer.domElement);
 	controls.target.set(0, 5, 0);
 	controls.update();
+
+	// adjust stuff when window is resized
+	window.addEventListener( 'resize', onWindowResize );
 }
 
 function animate() {
@@ -125,14 +146,6 @@ function animate() {
 		render();
 		renderer.render( scene, camera );
 	}
-
-	window.addEventListener( 'resize', onWindowResize );
-}
-
-// time dependent (?) stuff goes in here
-function render() {
-	cube.rotation.x += 0.01;
-	cube.rotation.y += 0.01;
 }
 
 function onWindowResize() {
