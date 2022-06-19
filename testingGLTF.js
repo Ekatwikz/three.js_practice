@@ -3,6 +3,9 @@ import WebGL from 'WebGL';
 import { OrbitControls } from 'controls';
 import { GLTFLoader } from 'GLTFLoader';
 
+// for compressed models
+import { MeshoptDecoder } from 'MeshoptDecoder';
+
 let container = document.getElementById( 'container' );
 
 let camera, scene, renderer;
@@ -17,20 +20,31 @@ function initHook(resourcePath) {
 
 	// load up a GLB model and add it to le scene
 	// rocket1 is ktx2, rocket3 is compressed (?)
-	const GLTFpath = resourcePath + '/3Dstuff/models/rocket1.glb';
-	const loader = new GLTFLoader();
-	loader.load(GLTFpath, (parsedJSON) => {
-		rocket = parsedJSON.scene;
-		rocket.position.y = 5;
-		rocket.traverse(descendantObject => {
-			descendantObject.castShadow = true;
-		});
-		scene.add(rocket);
-	});
-	
+	// TODO: fix loading compressed model
+	const GLTFpath = resourcePath + '/3Dstuff/models/rocket3.glb';
+	const loader = new GLTFLoader().setCrossOrigin('anonymous')
+		.setMeshoptDecoder(MeshoptDecoder);
+
+	loader.load(GLTFpath,
+		function onLoad(parsedJSON) {
+			rocket = parsedJSON.scene;
+			rocket.position.y = 5;
+			rocket.traverse(descendantObject => {
+				descendantObject.castShadow = true;
+			});
+			scene.add(rocket);
+		},
+		undefined, // onProgress
+		function onFail(error) {
+			var message = (error && error.message) ? error.message : 'Failed to load glTF model';
+			console.warn(message);
+			//this.el.emit('model-error', { format: 'gltf', src: src });
+		}
+	);
+
 	// add ground plane
 	const plane = new THREE.Mesh(
-		new THREE.PlaneGeometry(100, 100, 10, 10),
+		new THREE.PlaneGeometry(101, 100, 10, 10),
 		new THREE.MeshStandardMaterial({
 			color: 0xFFFFFF,
 		}));
