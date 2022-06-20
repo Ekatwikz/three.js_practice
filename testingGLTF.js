@@ -19,13 +19,12 @@ function initHook(resourcePath) {
 	rocket = new THREE.Object3D(); 
 
 	// load up a GLB model and add it to le scene
-	// rocket1 is ktx2, rocket3 is compressed (?)
-	// TODO: fix loading compressed model
-	const GLTFpath = resourcePath + '/3Dstuff/models/rocket3.glb';
-	const loader = new GLTFLoader().setCrossOrigin('anonymous')
+	const loader = new GLTFLoader()
+		.setPath(resourcePath + '/3Dstuff/models/')
+		.setCrossOrigin('anonymous') // I think?
 		.setMeshoptDecoder(MeshoptDecoder);
 
-	loader.load(GLTFpath,
+	loader.load('rocket3.glb',
 		function onLoad(parsedJSON) {
 			rocket = parsedJSON.scene;
 			rocket.position.y = 5;
@@ -108,15 +107,16 @@ function init (resourcePath) {
 	scene.add(new THREE.AmbientLight(0x505050));
 
 	// set skybox
-	const imagePath = resourcePath + '/3Dstuff/FreeCopperCubeSkyboxes/craterlake/craterlake_';
-	const loader = new THREE.CubeTextureLoader();
+	const imageName = 'craterlake';
+	const loader = new THREE.CubeTextureLoader()
+		.setPath(resourcePath + '/3Dstuff/FreeCopperCubeSkyboxes/' + imageName + '/');
 	const texture = loader.load([
-		imagePath + 'ft.jpg', // +x
-		imagePath + 'bk.jpg', // -x
-		imagePath + 'up.jpg', // +y
-		imagePath + 'dn.jpg', // -y
-		imagePath + 'rt.jpg', // +z
-		imagePath + 'lf.jpg', // -z
+		imageName + '_ft.jpg', // +x
+		imageName + '_bk.jpg', // -x
+		imageName + '_up.jpg', // +y
+		imageName + '_dn.jpg', // -y
+		imageName + '_rt.jpg', // +z
+		imageName + '_lf.jpg', // -z
 	]);
 	scene.background = texture;
 
