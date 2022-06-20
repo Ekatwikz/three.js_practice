@@ -38,13 +38,12 @@ function initHook(resourcePath) {
 		function onFail(error) {
 			var message = (error && error.message) ? error.message : 'Failed to load glTF model';
 			console.warn(message);
-			//this.el.emit('model-error', { format: 'gltf', src: src });
 		}
 	);
 
 	// add ground plane
 	const plane = new THREE.Mesh(
-		new THREE.PlaneGeometry(101, 100, 10, 10),
+		new THREE.PlaneGeometry(100, 100, 10, 10),
 		new THREE.MeshStandardMaterial({
 			color: 0xFFFFFF,
 		}));
